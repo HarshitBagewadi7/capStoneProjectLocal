@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap');
+
+.individualCard {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 3px;
+    margin-right: 3px;
+    font-family: 'Poppins', sans-serif;
+    width: 30%;
+}
+.img{
+    width: 100%;
+}
+.btn a {
+    text-decoration: none;
+}
+
+.btn a:hover, .btn a:active {
+    background-color: whitesmoke;
+    color: blue;
+  }

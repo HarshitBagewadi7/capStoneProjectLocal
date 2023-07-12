@@ -1,0 +1,17 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap');
+
+.navbar {
+    font-family: 'Poppins', sans-serif;
+    margin-bottom: 0.25rem;
+    background-color: antiquewhite;
+}
+
+#navbarScrollingDropdown {
+    margin-right: 2rem;
+}
+
+.bi-person-square {
+    height: 100%;
+    width: 100%;
+}
+

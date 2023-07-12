@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap');
+
+.email, .phone, .address {
+    display: flex;
+}
+.emailID {
+    font-size: large;
+    font-family: 'Poppins', sans-serif;
+}
+.heading {
+    font-weight: bold;
+}
+
+.social-media {
+    text-align: center;
+}
+
+.social-media a {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 4rem;
+    height: 4rem;
+    background: transparent;
+    border: .2rem solid #323946;
+    border-radius: 50%;
+    font-size: 2rem;
+    color: #323946;
+    margin: 3rem 1.5rem 3rem 0;
+    transition: .5s ease;
+}
+
+.social-media a:hover {
+    background-color: blanchedalmond;
+    color: #323946;
+    box-shadow: 0 0 1rem ;
+}

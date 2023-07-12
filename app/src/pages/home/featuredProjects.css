@@ -1,0 +1,14 @@
+body {
+    padding: 1em;
+}
+
+.card {
+    max-width: 30em;
+
+}
+
+
+.card p {
+    justify-content: left;
+    text-align: justify;
+}

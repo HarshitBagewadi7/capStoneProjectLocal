@@ -1,0 +1,184 @@
+require("dotenv").config();
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const passport = require("passport");
+const { ProjectModel } = require("./data/models/CreateProjectModel");
+// const userRoutes = require("./routes/user");
+// const header_middleware = require("./middleware/headers");
+const uri = process.env.MONGODB_STRING;
+const PORT = process.env.PORT || 3001;
+
+var session = require(`express-session`);
+
+const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+
+app.use(bodyParser.json());
+app.use(
+  session({
+    secret: "keyboard cat",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: true },
+  })
+);
+
+app.use(passport.initialize());
+// app.use(header_middleware);
+
+const User = require("./data/schema/UserSchema");
+
+const LocalStrategy = require("passport-local").Strategy;
+passport.use(new LocalStrategy(User.authenticate()));
+
+app.get("/projects", async (req, res) => {
+  let allPojects = await ProjectModel.find({});
+  res.json(allPojects);
+});
+
+app.get("/project/:id", async (req, res) => {
+  let projectData = await ProjectModel.findById(req.params.id).exec();
+  res.json(projectData);
+});
+
+app.get("/contributors", async (req, res) => {
+  try {
+    const data = await ProjectModel.find({}, "title contribution");
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.get("/contributors/:id", async (req, res) => {
+  try {
+    // const { id } = req.params;
+    const data = await ProjectModel.findById(req.params.id);
+    if (!data) {
+      return res.status(404).json({ error: "Data not found" });
+    }
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.post("/contributeProject/:id", async (req, res) => {
+  try {
+    const doc = await ProjectModel.findById(req.params.id);
+    doc.contribution.push(req.body);
+    await doc.save();
+    res.end();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/createProject", async (req, res) => {
+  try {
+    const createProjectData = new ProjectModel(req.body);
+    await createProjectData.save();
+    res.end();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// app.use("/api/user", userRoutes);
+
+app.post("/register", function (req, res) {
+  User.register(
+    new User({ email: req.body.email, username: req.body.username }),
+    req.body.password,
+    function (err, user) {
+      if (err) {
+        res.json({
+          success: false,
+          message: "Your account could not be saved. Error: " + err,
+        });
+      } else {
+        req.login(user, (er) => {
+          if (er) {
+            res.json({ success: false, message: er });
+          } else {
+            res.json({ success: true, message: "Your account has been saved" });
+            passport.serializeUser(User.serializeUser());
+            passport.deserializeUser(User.deserializeUser());
+          }
+        });
+      }
+    }
+  );
+});
+
+app.post("/login", function (req, res) {
+  if (!req.body.username) {
+    res.json({ success: false, message: "Username was not given" });
+  } else if (!req.body.password) {
+    res.json({ success: false, message: "Password was not given" });
+  } else {
+    passport.authenticate("local", function (err, user, info) {
+      if (err) {
+        res.json({ success: false, message: err });
+      } else {
+        if (!user) {
+          res.json({
+            success: false,
+            message: "username or password incorrect",
+          });
+        } else {
+          res.json(
+            {
+              success: true,
+              message: "Authentication successful",
+            },
+            passport.serializeUser(User.serializeUser()),
+            passport.deserializeUser(User.deserializeUser())
+          );
+        }
+      }
+    })(req, res);
+  }
+});
+
+app.get("/login", async (req, res) => {
+  try {
+    const userData = await User.find({}, "username");
+    const usernames = userData.map((user) => user.username);
+    res.json(usernames);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+
+  // if (req.body.username) {
+  //   res.json({ username: req.body.username });
+  // } else {
+  //   res.json({ username: null });
+  // }
+});
+
+app.post("/logout", function (req, res, next) {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on Port ${PORT}`);
+  mongoose.connect(uri);
+});
